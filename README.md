@@ -6,7 +6,7 @@ O programa basicamente recebe uma imagem BMP, e gera quatro arquivos, três dele
 Exemplo da imagem de entrada:
 <img src="imgs/test_img.bmp">
 Exemplo das imagens de saída:
-<img src="imgs/test_img_R.bmp">
 
+<img src="imgs/test_img_R.bmp">
 <img src="imgs/test_img_gs.bmp">
 
