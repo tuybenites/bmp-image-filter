@@ -11,3 +11,4 @@ Exemplo das imagens de saída:
 <img src="imgs/test_img_R.bmp">
 <img src="imgs/test_img_gs.bmp">
 
+That's all folks! Foi só um trabalho da escola que precisei fazer e achei divertido :P
