@@ -13,6 +13,11 @@
 **/
 
 
+void generate_output_name(char *input, char *str);
+void close_files(void);
+
+char name_in[30];
+
 int main(void){
     typedef struct{
     char id[2];
@@ -39,12 +44,11 @@ int main(void){
         uint8_t red;
     }RGB;
 
-    char name_in[30];
-    char name_out_r[30];
+    char name_out_r[35];
     char name_out_g[35];
     char name_out_b[35];
     char name_out_gs[35];
-
+    
     header id;
     RGB pixel, pixel_r, pixel_g, pixel_b, pixel_gs;
     uint32_t gray;
@@ -54,15 +58,15 @@ int main(void){
 
     puts("Digite o nome do arquivo (SEM O .BMP)");
     gets(name_in);
-    strcpy(name_out_r, name_in);
-    strcpy(name_out_g, name_in);
-    strcpy(name_out_b, name_in);
-    strcpy(name_out_gs, name_in);
-    strcat(name_in, ".bmp");
-    strcat(name_out_r, "_R.bmp");
-    strcat(name_out_g, "_G.bmp");
-    strcat(name_out_b, "_B.bmp");
-    strcat(name_out_gs, "_gs.bmp");
+
+    
+    generate_output_name(name_out_r, "_R.bmp");
+    generate_output_name(name_out_g, "_G.bmp");
+    generate_output_name(name_out_b, "_B.bmp");
+    generate_output_name(name_out_gs, "_GS.bmp");
+
+    generate_output_name(name_in, ".bmp");
+
     
     FILE* img_in = fopen(name_in, "rb");
 
@@ -137,13 +141,18 @@ int main(void){
     printf("Largura: %d\nAltura: %d\n", id.width, id.height);
     printf("Profundidade de cores: %d bits (2^%d cores)\n", id.colors, id.colors);
 
-
     fclose(img_in);
     fclose(img_out_r);
     fclose(img_out_g);
     fclose(img_out_b);
     fclose(img_out_gs);
 
-    
+    //fazer uma função close files
+
     return 0;
+}
+
+void generate_output_name(char input[], char str[]) {
+    strcpy(input, name_in);
+    strcat(input, str);
 }
