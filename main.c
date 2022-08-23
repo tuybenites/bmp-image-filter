@@ -42,7 +42,7 @@ int main(void){
         uint8_t blue; 
         uint8_t green;
         uint8_t red;
-    }RGB;
+    }BGR;
 
     char name_out_r[35];
     char name_out_g[35];
@@ -50,7 +50,7 @@ int main(void){
     char name_out_gs[35];
     
     header id;
-    RGB pixel, pixel_r, pixel_g, pixel_b, pixel_gs;
+    BGR pixel, pixel_r, pixel_g, pixel_b, pixel_gs;
     uint32_t gray;
     uint8_t empty = 0;
     uint32_t qtdBytes = 0;
@@ -80,10 +80,20 @@ int main(void){
     FILE* img_out_b = fopen(name_out_b, "wb");
     FILE* img_out_gs = fopen(name_out_gs, "wb");
 
-    if(img_out_r == NULL || img_out_g == NULL || img_out_b == NULL || img_out_gs == NULL){
-        puts("Falha em abrir um dos arquivos");
-        return -1;
+    FILE* img_array[] = {
+        img_out_r,
+        img_out_g,
+        img_out_b,
+        img_out_gs
+    };
+
+    for(int i=0; i < 4; i++){
+        if(img_array[i] == NULL) {
+            puts("Falha em abrir os arquivos de entrada");
+            return -1;
+        }
     }
+
 
     //pegando informações
     fread(&id, sizeof(header), 1, img_in);
@@ -102,57 +112,51 @@ int main(void){
     
     printf("Quantidade de bytes que faltam: %d\n", qtdBytes);
 
-    fwrite(&id, sizeof(header), 1, img_out_r); //copiando os dados para os arquivos de saída
-    fwrite(&id, sizeof(header), 1, img_out_g);
-    fwrite(&id, sizeof(header), 1, img_out_b);
-    fwrite(&id, sizeof(header), 1, img_out_gs);
+    for(int i=0; i < 4; i++){
+        fwrite(&id, sizeof(header), 1, img_array[i]); // copiando o cabeçalho para os arquivos de saída
+    }
 
     for(int i=0; i<(id.width * id.height); i++){ //percorre a área do retângulo
-        fread(&pixel, sizeof(RGB), 1, img_in); //lê a cor de um pixel
+        fread(&pixel, sizeof(BGR), 1, img_in); //lê a cor de um pixel
         //imagem cinza
         gray = (pixel.red + pixel.green + pixel.blue) / 3;
         pixel_gs.red = gray;
         pixel_gs.green = gray;
         pixel_gs.blue = gray;
-        fwrite(&pixel_gs, sizeof(RGB), 1, img_out_gs);
+        fwrite(&pixel_gs, sizeof(BGR), 1, img_out_gs);
         //imagem vermelha
         pixel_r.red = pixel.red;
         pixel_r.green = 0x00;
         pixel_r.blue = 0x0;
-        fwrite(&pixel_r, sizeof(RGB), 1,  img_out_r);
+        fwrite(&pixel_r, sizeof(BGR), 1,  img_out_r);
         //imagem verde
         pixel_g.red = 0x00;
         pixel_g.green = pixel.green;
         pixel_g.blue = 0x00;
-        fwrite(&pixel_g, sizeof(RGB), 1,  img_out_g);       
+        fwrite(&pixel_g, sizeof(BGR), 1,  img_out_g);       
         //imagem azul
         pixel_b.red = 0x00;
         pixel_b.green = 0x00;
         pixel_b.blue = pixel.blue;
-        fwrite(&pixel_b, sizeof(RGB), 1,  img_out_b);
+        fwrite(&pixel_b, sizeof(BGR), 1,  img_out_b);
     }
 
-    fwrite(&empty, 1, qtdBytes, img_out_r);
-    fwrite(&empty, 1, qtdBytes, img_out_g);
-    fwrite(&empty, 1, qtdBytes, img_out_b);
-    fwrite(&empty, 1, qtdBytes, img_out_gs);
+    for(int i = 0; i < 4; i++){ // escreve os bytes necessários para o arquivo BMP ser válido
+        fwrite(&empty, 1, qtdBytes, img_array[i]);
+    }
 
     printf("Tamanho do arquivo: %d Kb\n", id.size/1024);
     printf("Largura: %d\nAltura: %d\n", id.width, id.height);
     printf("Profundidade de cores: %d bits (2^%d cores)\n", id.colors, id.colors);
 
-    fclose(img_in);
-    fclose(img_out_r);
-    fclose(img_out_g);
-    fclose(img_out_b);
-    fclose(img_out_gs);
-
-    //fazer uma função close files
+    for(int i = 0; i < 4; i++){ // fecha os arquivos
+        fclose(img_array[i]);
+    }
 
     return 0;
 }
 
-void generate_output_name(char input[], char str[]) {
-    strcpy(input, name_in);
+void generate_output_name(char input[], char str[]){
+    if(input != name_in) strcpy(input, name_in);
     strcat(input, str);
 }
