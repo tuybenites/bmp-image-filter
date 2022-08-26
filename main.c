@@ -3,7 +3,6 @@
 #include "string.h"
 #include "inttypes.h"
 
-
 #pragma pack(1) //desativa o padding da struct
 
 /**
@@ -14,27 +13,35 @@
 
 
 void generate_output_name(char *input, char *str);
-void close_files(void);
+void close_files(FILE* img_array[]);
 
 char name_in[30];
 
 int main(void){
+
+
+
+    char name_out_r[35];
+    char name_out_g[35];
+    char name_out_b[35];
+    char name_out_gs[35];
+
     typedef struct{
-    char id[2];
-    uint32_t size;
-    uint16_t reser[2];
-    uint32_t offset;
-    uint32_t bisize;
-    uint32_t width;
-    uint32_t height;
-    uint16_t planes;
-    uint16_t colors;
-    uint32_t compress;
-    uint32_t sizeimg;
-    uint32_t xppmeter;
-    uint32_t yppmeter;
-    uint32_t colorused;
-    uint32_t colorused_important;
+        char id[2];
+        uint32_t size;
+        uint16_t reser[2];
+        uint32_t offset;
+        uint32_t bisize;
+        uint32_t width;
+        uint32_t height;
+        uint16_t planes;
+        uint16_t colors;
+        uint32_t compress;
+        uint32_t sizeimg;
+        uint32_t xppmeter;
+        uint32_t yppmeter;
+        uint32_t colorused;
+        uint32_t colorused_important;
     }header;
 
     typedef struct{
@@ -43,11 +50,6 @@ int main(void){
         uint8_t green;
         uint8_t red;
     }BGR;
-
-    char name_out_r[35];
-    char name_out_g[35];
-    char name_out_b[35];
-    char name_out_gs[35];
     
     header id;
     BGR pixel, pixel_r, pixel_g, pixel_b, pixel_gs;
@@ -145,15 +147,20 @@ int main(void){
         fwrite(&empty, 1, qtdBytes, img_array[i]);
     }
 
+
     printf("Tamanho do arquivo: %d Kb\n", id.size/1024);
     printf("Largura: %d\nAltura: %d\n", id.width, id.height);
     printf("Profundidade de cores: %d bits (2^%d cores)\n", id.colors, id.colors);
+    close_files(img_array);
 
+    return 0;
+}
+
+
+void close_files(FILE* img_array[]){
     for(int i = 0; i < 4; i++){ // fecha os arquivos
         fclose(img_array[i]);
     }
-
-    return 0;
 }
 
 void generate_output_name(char input[], char str[]){
